@@ -1,0 +1,992 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#2A1A0F">
+<title>Móveis Finos</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700;9..144,800&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<style>
+:root{
+  --noz:#2A1A0F; --noz2:#3B2616; --noz3:#4d3320;
+  --cedro:#B8732B; --mel:#D9A04A; --mel-pale:#F7E7C8;
+  --linho:#F3EADB; --papel:#FBF7EF; --surf:#fff; --ink:#2A1A0F; --muted:#85735f;
+  --line:#E7DAC6; --ok:#4F7A3A; --ok-pale:#E4EFD9; --danger:#B0412F; --danger-pale:#F6DED8; --warn:#C48A1E;
+  --f-display:'Fraunces',Georgia,serif; --f-ui:'DM Sans',system-ui,sans-serif;
+  --r:14px; --shadow:0 1px 2px rgba(42,26,15,.06),0 6px 18px rgba(42,26,15,.06);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{font-family:var(--f-ui);background:var(--papel);color:var(--ink);font-size:15px;line-height:1.4;
+  background-image:radial-gradient(rgba(184,115,43,.05) 1px,transparent 1px);background-size:22px 22px}
+button{font-family:inherit;cursor:pointer;border:0;background:none;color:inherit}
+input,select,textarea{font-family:inherit;font-size:16px;color:var(--ink)}
+h1,h2,h3{font-family:var(--f-display);font-weight:700;letter-spacing:-.01em}
+.hide{display:none!important}
+
+/* ---------- Auth ---------- */
+#auth{min-height:100%;display:grid;place-items:center;padding:24px;
+  background:linear-gradient(160deg,var(--noz) 0%,var(--noz3) 100%);position:relative;overflow:hidden}
+#auth::before{content:"";position:absolute;inset:0;opacity:.18;
+  background:repeating-linear-gradient(95deg,transparent 0 14px,rgba(217,160,74,.35) 14px 15px,transparent 15px 41px,rgba(217,160,74,.18) 41px 42px)}
+.auth-card{position:relative;background:var(--papel);border-radius:22px;padding:34px 28px;width:100%;max-width:380px;box-shadow:0 30px 60px rgba(0,0,0,.4)}
+.auth-card .logo{display:flex;justify-content:center;margin-bottom:18px}
+.auth-card h2{text-align:center;font-size:24px;margin-bottom:4px}
+.auth-card p.sub{text-align:center;color:var(--muted);font-size:13.5px;margin-bottom:22px}
+
+/* ---------- Layout ---------- */
+#app{display:grid;grid-template-columns:248px 1fr;min-height:100%}
+.side{background:var(--noz);color:#f3e6d0;padding:22px 16px;position:sticky;top:0;height:100vh;display:flex;flex-direction:column;gap:6px;
+  background-image:repeating-linear-gradient(92deg,transparent 0 22px,rgba(217,160,74,.07) 22px 23px,transparent 23px 61px,rgba(217,160,74,.04) 61px 62px)}
+.side .brand{padding:4px 6px 18px}
+.nav-btn{display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:12px;font-weight:500;color:#d9c7ab;font-size:15px;width:100%;text-align:left;transition:.15s}
+.nav-btn svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.nav-btn:hover{background:rgba(255,255,255,.06);color:#fff}
+.nav-btn.on{background:var(--cedro);color:#fff;box-shadow:0 6px 16px rgba(184,115,43,.4)}
+.side .spacer{flex:1}
+.side .who{font-size:12px;color:#a8957a;padding:8px 6px;word-break:break-all}
+main{padding:28px 32px 60px;max-width:1180px;width:100%}
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:20px;flex-wrap:wrap}
+.top h1{font-size:30px}
+.top .sub{color:var(--muted);font-size:14px;margin-top:2px}
+.banner{background:var(--mel-pale);border:1px solid var(--mel);color:#6d4a14;padding:9px 14px;border-radius:10px;font-size:13px;margin-bottom:16px}
+
+/* ---------- Components ---------- */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:11px 18px;border-radius:12px;font-weight:600;font-size:14.5px;transition:.15s;white-space:nowrap}
+.btn-p{background:var(--cedro);color:#fff;box-shadow:0 4px 12px rgba(184,115,43,.35)}
+.btn-p:hover{background:#a2631f}
+.btn-d{background:var(--noz);color:#fff}
+.btn-g{background:var(--surf);border:1px solid var(--line);color:var(--ink)}
+.btn-g:hover{border-color:var(--cedro)}
+.btn-r{color:var(--danger);border:1px solid var(--danger-pale);background:#fff}
+.btn-sm{padding:7px 12px;font-size:13px;border-radius:10px}
+.btn-wa{background:#1FA855;color:#fff}
+.card{background:var(--surf);border:1px solid var(--line);border-radius:var(--r);padding:18px;box-shadow:var(--shadow)}
+.grid{display:grid;gap:14px}
+.g4{grid-template-columns:repeat(4,1fr)}
+.g2{grid-template-columns:1fr 1fr}
+.g3{grid-template-columns:repeat(3,1fr)}
+.kpi{position:relative;overflow:hidden}
+.kpi .l{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:600}
+.kpi .v{font-family:var(--f-display);font-size:26px;font-weight:700;margin-top:6px}
+.kpi .s{font-size:12.5px;color:var(--muted);margin-top:3px}
+.kpi::after{content:"";position:absolute;right:-18px;top:-18px;width:70px;height:70px;border-radius:50%;background:var(--mel-pale)}
+.kpi>*{position:relative;z-index:1}
+.kpi::after{z-index:0}
+.kpi.hero{background:var(--noz);color:#fff;border-color:var(--noz)}
+.kpi.hero .l,.kpi.hero .s{color:#cdb894}.kpi.hero::after{background:rgba(217,160,74,.18)}
+.pos{color:var(--ok)}.neg{color:var(--danger)}
+.chip{display:inline-block;padding:3px 10px;border-radius:99px;font-size:11.5px;font-weight:700;letter-spacing:.02em}
+.st-visitar{background:#E9E4F5;color:#5a4a8f}.st-orcamento{background:var(--mel-pale);color:#8a5a12}
+.st-fechado{background:var(--ok-pale);color:var(--ok)}.st-producao{background:#DCE9F4;color:#2f5d87}
+.st-entregue{background:#D8EEE8;color:#1f6b5b}.st-perdido{background:var(--danger-pale);color:var(--danger)}
+.st-pago{background:var(--ok-pale);color:var(--ok)}.st-pendente{background:var(--mel-pale);color:#8a5a12}
+.search{width:100%;max-width:340px;padding:11px 14px;border:1px solid var(--line);border-radius:12px;background:#fff}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+.tab{padding:7px 14px;border-radius:99px;border:1px solid var(--line);background:#fff;font-size:13px;font-weight:600;color:var(--muted)}
+.tab.on{background:var(--noz);color:#fff;border-color:var(--noz)}
+.list{display:flex;flex-direction:column;gap:10px}
+.row{display:flex;align-items:center;gap:14px;background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:14px 16px;cursor:pointer;transition:.15s}
+.row:hover{border-color:var(--cedro);transform:translateY(-1px);box-shadow:var(--shadow)}
+.row .num{font-family:var(--f-display);font-weight:800;color:var(--cedro);min-width:44px;font-size:16px}
+.row .main{flex:1;min-width:0}
+.row .t{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.row .d{font-size:13px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.row .val{text-align:right;font-weight:700;font-variant-numeric:tabular-nums}
+.row .val small{display:block;font-weight:500;color:var(--muted);font-size:12px}
+.empty{text-align:center;color:var(--muted);padding:44px 16px;border:2px dashed var(--line);border-radius:var(--r)}
+.field{display:flex;flex-direction:column;gap:5px;margin-bottom:12px}
+.field label{font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.field input,.field select,.field textarea{padding:11px 13px;border:1px solid var(--line);border-radius:11px;background:#fff;width:100%}
+.field input:focus,.field select:focus,.field textarea:focus,.search:focus{outline:2px solid var(--mel);border-color:var(--mel)}
+.field textarea{resize:vertical;min-height:70px}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.frow3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.sec-t{font-family:var(--f-display);font-size:17px;margin:20px 0 10px;display:flex;align-items:center;gap:10px}
+.sec-t::after{content:"";flex:1;height:1px;background:var(--line)}
+
+/* ---------- Modal ---------- */
+.ov{position:fixed;inset:0;background:rgba(42,26,15,.6);z-index:50;display:flex;align-items:flex-start;justify-content:center;overflow-y:auto;padding:24px 12px}
+.sheet{background:var(--papel);border-radius:20px;width:100%;max-width:760px;box-shadow:0 30px 70px rgba(0,0,0,.4);animation:up .22s ease}
+.sheet.sm{max-width:480px}
+@keyframes up{from{transform:translateY(24px);opacity:0}to{transform:none;opacity:1}}
+.sh-h{display:flex;align-items:center;justify-content:space-between;padding:18px 22px;border-bottom:1px solid var(--line);position:sticky;top:0;background:var(--papel);border-radius:20px 20px 0 0;z-index:3}
+.sh-h h2{font-size:20px}
+.sh-b{padding:18px 22px}
+.sh-f{display:flex;gap:10px;justify-content:flex-end;padding:14px 22px;border-top:1px solid var(--line);position:sticky;bottom:0;background:var(--papel);border-radius:0 0 20px 20px;flex-wrap:wrap}
+.x-btn{width:34px;height:34px;border-radius:50%;background:var(--linho);font-size:20px;line-height:1}
+
+/* ---------- Orçamento: itens ---------- */
+.pick{position:relative}
+.pick-res{position:absolute;left:0;right:0;top:100%;background:#fff;border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow);max-height:240px;overflow:auto;z-index:5}
+.pick-res button{display:flex;justify-content:space-between;gap:10px;width:100%;padding:10px 14px;text-align:left;font-size:14px;border-bottom:1px solid var(--linho)}
+.pick-res button:hover{background:var(--mel-pale)}
+.pick-res small{color:var(--muted);white-space:nowrap}
+.it{display:grid;grid-template-columns:1fr 70px 92px 96px 32px;gap:8px;align-items:center;margin-bottom:8px}
+.it input{padding:9px 10px;border:1px solid var(--line);border-radius:10px;width:100%;background:#fff;font-size:15px}
+.it .it-t{text-align:right;font-weight:600;font-size:14px;font-variant-numeric:tabular-nums}
+.it .x{width:30px;height:30px;border-radius:50%;color:var(--danger);font-size:20px}
+.it-h{display:grid;grid-template-columns:1fr 70px 92px 96px 32px;gap:8px;font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;margin-bottom:6px}
+.sumbox{background:var(--noz);color:#f3e6d0;border-radius:var(--r);padding:16px 18px;margin-top:14px}
+.sumbox .ln{display:flex;justify-content:space-between;padding:4px 0;font-size:14px;font-variant-numeric:tabular-nums}
+.sumbox .ln.big{font-family:var(--f-display);font-size:24px;font-weight:700;color:#fff;border-top:1px solid rgba(255,255,255,.2);margin-top:8px;padding-top:12px}
+.sumbox .ln.sm{color:#bda985;font-size:13px}
+.pct-btns{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.pct-btns button{padding:6px 12px;border-radius:99px;border:1px solid var(--line);background:#fff;font-size:13px;font-weight:600}
+.pct-btns button.on{background:var(--cedro);color:#fff;border-color:var(--cedro)}
+.hint{font-size:12.5px;color:var(--muted);margin-top:4px}
+
+/* ---------- PDF preview ---------- */
+.pdf-wrap{background:#d9cdb9;padding:14px;border-radius:14px;overflow:hidden}
+.pdf-scale{transform-origin:top left}
+
+/* ---------- Charts ---------- */
+.chart-box{position:relative;height:260px}
+.mnav{display:flex;align-items:center;gap:8px}
+.mnav b{min-width:130px;text-align:center;font-family:var(--f-display);font-size:17px;text-transform:capitalize}
+.mnav button{width:34px;height:34px;border-radius:50%;background:#fff;border:1px solid var(--line);font-size:18px}
+
+/* ---------- Mobile ---------- */
+.bnav{display:none}
+.fab{display:none}
+#toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%) translateY(20px);background:var(--noz);color:#fff;padding:11px 20px;border-radius:99px;font-size:14px;opacity:0;pointer-events:none;transition:.25s;z-index:99;max-width:90vw;text-align:center}
+#toast.on{opacity:1;transform:translateX(-50%)}
+@media(max-width:860px){
+  #app{grid-template-columns:minmax(0,1fr)}
+  .side{display:none}
+  main{padding:18px 16px 110px;min-width:0}
+  .top h1{font-size:25px}
+  .g4{grid-template-columns:repeat(2,minmax(0,1fr))}.g2,.g3{grid-template-columns:minmax(0,1fr)}
+  .grid>*{min-width:0}
+  .kpi{padding:14px}
+  .kpi .v{font-size:clamp(16px,5.2vw,21px);overflow-wrap:anywhere}
+  .kpi .l{font-size:11px}
+  .bnav button{font-size:9.5px;min-width:0;padding:6px 1px}
+  .bnav button svg{width:20px;height:20px}
+  .bnav{display:flex;position:fixed;left:0;right:0;bottom:0;background:var(--noz);padding:6px 4px calc(6px + env(safe-area-inset-bottom));z-index:40;justify-content:space-around;box-shadow:0 -6px 20px rgba(0,0,0,.25)}
+  .bnav button{display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 4px;color:#b9a587;font-size:10.5px;font-weight:600;flex:1;border-radius:10px}
+  .bnav button svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+  .bnav button.on{color:var(--mel)}
+  .fab{display:flex;position:fixed;right:16px;bottom:82px;width:56px;height:56px;border-radius:50%;background:var(--cedro);color:#fff;font-size:30px;align-items:center;justify-content:center;box-shadow:0 8px 20px rgba(184,115,43,.5);z-index:41}
+  .ov{padding:0;align-items:flex-start}
+  .sheet{border-radius:0;max-width:none;min-height:100%;min-width:0;overflow-x:hidden}
+  .sh-f .btn{flex:1}
+  .field input,.field select,.field textarea{min-width:0}
+  .frow{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+  .frow3{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+  .sh-h{border-radius:0}.sh-f{border-radius:0;padding-bottom:calc(14px + env(safe-area-inset-bottom))}
+  .sh-b{padding:16px}
+  .it{grid-template-columns:1fr 1fr 1fr 32px;grid-template-areas:"n n n x" "q u t t"}
+  .it .it-n{grid-area:n}.it .it-q{grid-area:q}.it .it-u{grid-area:u}.it .it-t{grid-area:t}.it .x{grid-area:x}
+  .it-h{display:none}
+  .frow3{grid-template-columns:1fr 1fr}
+  .row{padding:12px}
+  .btn-top-new{display:none}
+}
+@media print{body{background:#fff}}
+</style>
+</head>
+<body>
+
+<!-- ======= AUTH ======= -->
+<section id="auth" class="hide">
+  <div class="auth-card">
+    <div class="logo" id="auth-logo"></div>
+    <h2>Bem-vindo</h2>
+    <p class="sub">Entre para acessar seus orçamentos e finanças</p>
+    <div class="field"><label>E-mail</label><input id="a-email" type="email" autocomplete="username"></div>
+    <div class="field"><label>Senha</label><input id="a-pass" type="password" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()"></div>
+    <button class="btn btn-p" style="width:100%" onclick="doLogin()">Entrar</button>
+    <p class="hint" id="a-msg" style="text-align:center;margin-top:12px;color:var(--danger)"></p>
+    <p style="text-align:center;margin-top:10px"><button class="hint" style="text-decoration:underline" onclick="doSignup()">Primeiro acesso? Criar conta</button></p>
+  </div>
+</section>
+
+<!-- ======= APP ======= -->
+<div id="app" class="hide">
+  <aside class="side">
+    <div class="brand" id="side-logo"></div>
+    <nav id="side-nav"></nav>
+    <div class="spacer"></div>
+    <div class="who" id="who"></div>
+    <button class="nav-btn" onclick="logout()"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>Sair</button>
+  </aside>
+  <main id="view"></main>
+</div>
+<nav class="bnav hide" id="bnav"></nav>
+<button class="fab hide" id="fab" onclick="fabAction()" aria-label="Novo">+</button>
+<div id="toast"></div>
+<div id="modals"></div>
+
+<script src="dados-planilha.js"></script>
+<script>
+/* =====================================================================
+   CONFIGURAÇÃO — preencha depois de criar o projeto no Supabase.
+   Enquanto estiver vazio, o app roda em MODO TESTE LOCAL (dados só neste navegador).
+   ===================================================================== */
+const SUPABASE_URL = '';
+const SUPABASE_KEY = 'sb_publishable_qATKx0tS47wvP2MR0hxWGQ_W11Xu9I4'; // chave pública (segura para ficar no site)
+
+const LOCAL = !SUPABASE_URL;
+let sb = null;
+
+/* ---------- helpers ---------- */
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const num = v => { const n = parseFloat(v); return isFinite(n) ? n : 0; };
+const r2 = n => Math.round((n + Number.EPSILON) * 100) / 100;
+const brl = n => num(n).toLocaleString('pt-BR', {style:'currency', currency:'BRL'});
+const uid = () => 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => { const r = Math.random()*16|0; return (c==='x' ? r : (r&3|8)).toString(16); });
+const pad = n => String(n).padStart(2,'0');
+const today = () => { const d = new Date(); return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`; };
+const fmtD = iso => iso ? iso.slice(0,10).split('-').reverse().join('/') : '';
+const addDays = (iso, n) => { const d = new Date((iso || today()) + 'T12:00:00'); d.setDate(d.getDate() + n); return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`; };
+const MESES = ['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
+const mesLabel = ym => { const [y,m] = ym.split('-'); return `${MESES[+m-1]} ${y}`; };
+const mesShift = (ym, n) => { const [y,m] = ym.split('-').map(Number); const d = new Date(y, m-1+n, 1); return `${d.getFullYear()}-${pad(d.getMonth()+1)}`; };
+const digits = s => String(s||'').replace(/\D/g,'');
+function toast(msg){ const t = $('#toast'); t.textContent = msg; t.classList.add('on'); clearTimeout(toast.t); toast.t = setTimeout(()=>t.classList.remove('on'), 2600); }
+
+/* ---------- logo ---------- */
+function logoSvg(dark = false){
+  const txt = dark ? '#2A1A0F' : '#F7E7C8';
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 260 84" width="260" height="84">
+  <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#D9A04A"/><stop offset="1" stop-color="#B8732B"/></linearGradient></defs>
+  <rect x="2" y="2" width="80" height="80" rx="16" fill="#3B2616" stroke="url(#g)" stroke-width="3"/>
+  <g stroke="#D9A04A" stroke-opacity=".28" stroke-width="1.3" fill="none"><path d="M10 18c20-6 44 6 64 0"/><path d="M10 30c22-6 40 6 64 0"/><path d="M10 54c22 6 40-6 64 0"/><path d="M10 66c20 6 44-6 64 0"/></g>
+  <text x="42" y="54" text-anchor="middle" font-family="Georgia,'Times New Roman',serif" font-weight="700" font-size="38" fill="#F7E7C8" letter-spacing="-1">MF</text>
+  <text x="98" y="40" font-family="Georgia,'Times New Roman',serif" font-weight="700" font-size="25" fill="${txt}" letter-spacing="2">MÓVEIS</text>
+  <text x="98" y="68" font-family="Georgia,'Times New Roman',serif" font-weight="700" font-size="25" fill="#B8732B" letter-spacing="9">FINOS</text>
+</svg>`;
+}
+const logoUri = (dark) => 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(logoSvg(dark));
+function logoSrc(dark){ return (S.config && S.config.logo) || logoUri(dark); }
+function logoImg(dark, h = 54){ return `<img src="${logoSrc(dark)}" alt="Móveis Finos" style="height:${h}px;width:auto;display:block">`; }
+async function toPng(src){
+  return new Promise(res => {
+    const im = new Image();
+    im.onload = () => { const c = document.createElement('canvas'); const k = 3; c.width = (im.naturalWidth||260)*k; c.height = (im.naturalHeight||84)*k; c.getContext('2d').drawImage(im,0,0,c.width,c.height); res(c.toDataURL('image/png')); };
+    im.onerror = () => res(src);
+    im.src = src;
+  });
+}
+
+/* ---------- estado ---------- */
+const S = {
+  user:null, tab:'painel', mes: today().slice(0,7),
+  clientes:[], materiais:[], orcamentos:[], lancamentos:[], config:null,
+  fOrc:'todos', qOrc:'', qCli:'', qMat:'', fMat:'todos', fFin:'todos'
+};
+const CONFIG_DEFAULT = {
+  empresa:'Móveis Finos', responsavel:'', telefone:'', cidade:'', pix:'',
+  lucro_pct:60, valor_chapa:170, entrada_pct:60, validade_dias:15,
+  prazo:'30 dias úteis após a aprovação do projeto e pagamento da entrada',
+  garantia:'1 ano contra defeitos de fabricação',
+  condicoes:'Restante na entrega/montagem dos móveis.',
+  logo:null
+};
+const STATUS = {visitar:'Visitar', orcamento:'Orçamento', fechado:'Fechado', producao:'Em produção', entregue:'Entregue', perdido:'Perdido'};
+const CAT_SAIDA = ['Material','Mão de obra','Combustível','Alimentação','Energia / água','Ferramentas','Manutenção','Impostos / taxas','Pessoal','Outros'];
+const CAT_ENTRADA = ['Venda avulsa','Serviço','Outros'];
+
+/* ---------- camada de dados (Supabase ou local) ---------- */
+const NULLABLE = k => k === 'cliente_id' || k === 'data' || k.endsWith('_data');
+const DB = {
+  async list(t){
+    if (LOCAL) return JSON.parse(localStorage.getItem('mf-'+t) || '[]');
+    const {data, error} = await sb.from(t).select('*').order('created_at', {ascending:true});
+    if (error) throw error; return data || [];
+  },
+  async save(t, o){
+    if (!o.id) o.id = uid();
+    if (LOCAL){
+      const a = await this.list(t); if (!o.created_at) o.created_at = new Date().toISOString();
+      const i = a.findIndex(x => x.id === o.id); if (i >= 0) a[i] = o; else a.push(o);
+      localStorage.setItem('mf-'+t, JSON.stringify(a)); return o;
+    }
+    const row = {...o, user_id:S.user.id};
+    for (const k in row) if (row[k] === '' && NULLABLE(k)) row[k] = null;
+    const {data, error} = await sb.from(t).upsert(row).select().single();
+    if (error) throw error; return data;
+  },
+  async saveMany(t, arr){
+    arr.forEach(o => { if (!o.id) o.id = uid(); });
+    if (LOCAL){ const a = await this.list(t); localStorage.setItem('mf-'+t, JSON.stringify(a.concat(arr.map(o => ({...o, created_at:new Date().toISOString()}))))); return; }
+    const {error} = await sb.from(t).upsert(arr.map(o => ({...o, user_id:S.user.id}))); if (error) throw error;
+  },
+  async del(t, id){
+    if (LOCAL){ const a = (await this.list(t)).filter(x => x.id !== id); localStorage.setItem('mf-'+t, JSON.stringify(a)); return; }
+    const {error} = await sb.from(t).delete().eq('id', id); if (error) throw error;
+  },
+  async getConfig(){
+    if (LOCAL) return JSON.parse(localStorage.getItem('mf-config') || '{}');
+    const {data} = await sb.from('configuracoes').select('dados').eq('user_id', S.user.id).maybeSingle();
+    return (data && data.dados) || {};
+  },
+  async saveConfig(c){
+    if (LOCAL){ localStorage.setItem('mf-config', JSON.stringify(c)); return; }
+    const {error} = await sb.from('configuracoes').upsert({user_id:S.user.id, dados:c, updated_at:new Date().toISOString()}); if (error) throw error;
+  }
+};
+async function upsertLocalState(t, o){
+  const saved = await DB.save(t, o);
+  const i = S[t].findIndex(x => x.id === saved.id);
+  if (i >= 0) S[t][i] = saved; else S[t].push(saved);
+  return saved;
+}
+async function removeState(t, id){ await DB.del(t, id); S[t] = S[t].filter(x => x.id !== id); }
+async function loadAll(){
+  const [c, m, o, l, cfg] = await Promise.all([DB.list('clientes'), DB.list('materiais'), DB.list('orcamentos'), DB.list('lancamentos'), DB.getConfig()]);
+  S.clientes = c; S.materiais = m; S.orcamentos = o; S.lancamentos = l;
+  S.config = {...CONFIG_DEFAULT, ...cfg};
+}
+
+/* ---------- cálculo do orçamento ---------- */
+// Regra da planilha: V.FINAL = materiais + (materiais × lucro%) + Júlio (chapas × valor por chapa) − desconto
+function calc(o){
+  const mat = r2((o.itens || []).reduce((s, i) => s + num(i.qtd) * num(i.unit), 0));
+  const julio = r2(num(o.chapas) * num(o.valor_chapa));
+  const lucro = r2(mat * num(o.lucro_pct) / 100);
+  const bruto = r2(mat + lucro + julio);
+  // orçamentos importados da planilha antiga têm valor fixo (não foram montados por itens)
+  const fixo = o.valor_fixo !== null && o.valor_fixo !== undefined && o.valor_fixo !== '';
+  const total = fixo ? r2(num(o.valor_fixo)) : Math.max(0, r2(bruto - num(o.desconto)));
+  const custo = fixo ? r2(num(o.custo)) : r2(mat + julio);
+  const entrada = r2(num(o.entrada));
+  return {mat, julio, lucro, bruto, total, custo, lucroReal:r2(total - custo), entrada, restante:r2(total - entrada)};
+}
+const chapasDe = o => (o.itens || []).reduce((s, i) => s + (i.chapa ? num(i.qtd) : 0), 0);
+
+/* ---------- movimentos financeiros (manuais + parcelas dos orçamentos fechados) ---------- */
+function movs(){
+  const out = S.lancamentos.map(l => ({id:l.id, tipo:l.tipo, desc:l.descricao, valor:num(l.valor), data:l.data || '', cat:l.categoria || '', pago:l.status === 'pago', virtual:false}));
+  S.orcamentos.filter(o => ['fechado','producao','entregue'].includes(o.status)).forEach(o => {
+    const c = calc(o);
+    if (c.entrada > 0) out.push({id:'v:'+o.id+':e', oid:o.id, parte:'entrada', tipo:'entrada', desc:`Entrada — ${o.cliente_nome || 'cliente'} (#${o.numero})`, valor:c.entrada, data:o.entrada_data || o.data || '', cat:'Orçamento', pago:!!o.entrada_paga, virtual:true});
+    if (c.restante > 0) out.push({id:'v:'+o.id+':r', oid:o.id, parte:'restante', tipo:'entrada', desc:`Restante — ${o.cliente_nome || 'cliente'} (#${o.numero})`, valor:c.restante, data:o.restante_data || o.data || '', cat:'Orçamento', pago:!!o.restante_pago, virtual:true});
+  });
+  return out;
+}
+
+/* =====================================================================
+   BOOT / AUTH
+   ===================================================================== */
+const ICONS = {
+  painel:'<rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/>',
+  orcamentos:'<path d="M6 3h9l4 4v14H6z"/><path d="M9 12h7M9 16h7"/>',
+  clientes:'<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/>',
+  catalogo:'<path d="M3 7l9-4 9 4-9 4z"/><path d="M3 7v10l9 4 9-4V7"/>',
+  financeiro:'<path d="M3 17l5-6 4 4 8-9"/><path d="M15 6h5v5"/>',
+  config:'<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M19 5l-2 2M7 17l-2 2"/>'
+};
+const TABS = [['painel','Painel'],['orcamentos','Orçamentos'],['clientes','Clientes'],['catalogo','Catálogo'],['financeiro','Financeiro'],['config','Ajustes']];
+
+async function boot(){
+  $('#auth-logo').innerHTML = logoImg(true, 64);
+  if (LOCAL){ S.user = {id:'local', email:'Modo teste (neste navegador)'}; await enter(); return; }
+  sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  const {data:{session}} = await sb.auth.getSession();
+  if (session){ S.user = session.user; await enter(); } else $('#auth').classList.remove('hide');
+}
+async function enter(){
+  try { await loadAll(); } catch(e){ alert('Erro ao carregar dados: ' + e.message); return; }
+  $('#auth').classList.add('hide'); $('#app').classList.remove('hide'); $('#bnav').classList.remove('hide'); $('#fab').classList.remove('hide');
+  $('#side-logo').innerHTML = logoImg(false, 50);
+  $('#who').textContent = S.user.email;
+  $('#side-nav').innerHTML = TABS.map(([k,l]) => `<button class="nav-btn" data-t="${k}" onclick="go('${k}')"><svg viewBox="0 0 24 24">${ICONS[k]}</svg>${l}</button>`).join('');
+  $('#bnav').innerHTML = TABS.map(([k,l]) => `<button data-t="${k}" onclick="go('${k}')"><svg viewBox="0 0 24 24">${ICONS[k]}</svg>${l}</button>`).join('');
+  go('painel');
+}
+async function doLogin(){
+  const email = $('#a-email').value.trim(), password = $('#a-pass').value;
+  $('#a-msg').textContent = '';
+  const {data, error} = await sb.auth.signInWithPassword({email, password});
+  if (error){ $('#a-msg').textContent = 'E-mail ou senha incorretos.'; return; }
+  S.user = data.user; await enter();
+}
+async function doSignup(){
+  if (LOCAL) return;
+  const email = $('#a-email').value.trim(), password = $('#a-pass').value;
+  if (!email || password.length < 6){ $('#a-msg').textContent = 'Informe e-mail e uma senha com 6+ caracteres.'; return; }
+  const {data, error} = await sb.auth.signUp({email, password});
+  if (error){ $('#a-msg').textContent = error.message; return; }
+  if (data.session){ S.user = data.user; await enter(); } else $('#a-msg').textContent = 'Conta criada! Confirme pelo link enviado ao e-mail e depois entre.';
+}
+async function logout(){ if (LOCAL){ toast('No modo teste não há login.'); return; } await sb.auth.signOut(); location.reload(); }
+
+function go(t){
+  S.tab = t;
+  document.querySelectorAll('[data-t]').forEach(b => b.classList.toggle('on', b.dataset.t === t));
+  render(); window.scrollTo(0,0);
+}
+function render(){
+  const v = $('#view');
+  const banner = LOCAL ? `<div class="banner">🧪 <b>Modo teste:</b> os dados ficam salvos só neste navegador. Quando conectarmos o Supabase, tudo passa a ficar na nuvem.</div>` : '';
+  v.innerHTML = banner + ({painel:vPainel, orcamentos:vOrcamentos, clientes:vClientes, catalogo:vCatalogo, financeiro:vFinanceiro, config:vConfig}[S.tab])();
+  if (S.tab === 'painel') drawCharts();
+}
+function fabAction(){ ({orcamentos:()=>editOrc(), clientes:()=>editCli(), catalogo:()=>editMat(), financeiro:()=>editLanc('saida')}[S.tab] || (()=>editOrc()))(); }
+
+/* =====================================================================
+   MODAL
+   ===================================================================== */
+function openModal(id, html, cls = ''){
+  closeModal(id);
+  const d = document.createElement('div'); d.className = 'ov'; d.id = id;
+  d.innerHTML = `<div class="sheet ${cls}">${html}</div>`;
+  $('#modals').appendChild(d); document.body.style.overflow = 'hidden';
+}
+function closeModal(id){ const e = document.getElementById(id); if (e) e.remove(); if (!$('#modals').children.length) document.body.style.overflow = ''; }
+
+/* =====================================================================
+   PAINEL
+   ===================================================================== */
+function mesNav(){ return `<div class="mnav"><button onclick="S.mes=mesShift(S.mes,-1);render()">‹</button><b>${mesLabel(S.mes)}</b><button onclick="S.mes=mesShift(S.mes,1);render()">›</button></div>`; }
+function vPainel(){
+  const all = movs(), mm = all.filter(m => m.data.startsWith(S.mes));
+  const ent = mm.filter(m => m.tipo === 'entrada' && m.pago).reduce((s,m) => s + m.valor, 0);
+  const sai = mm.filter(m => m.tipo === 'saida' && m.pago).reduce((s,m) => s + m.valor, 0);
+  const aReceber = all.filter(m => m.tipo === 'entrada' && !m.pago).reduce((s,m) => s + m.valor, 0);
+  const aPagar = all.filter(m => m.tipo === 'saida' && !m.pago).reduce((s,m) => s + m.valor, 0);
+  const res = ent - sai;
+  const abertos = S.orcamentos.filter(o => ['visitar','orcamento'].includes(o.status));
+  const valAberto = abertos.reduce((s,o) => s + num(o.total), 0);
+  const fechMes = S.orcamentos.filter(o => ['fechado','producao','entregue'].includes(o.status) && (o.data || '').startsWith(S.mes));
+  const lucroPrev = fechMes.reduce((s,o) => s + num(o.lucro_real), 0);
+  const decididos = S.orcamentos.filter(o => ['fechado','producao','entregue','perdido'].includes(o.status)).length;
+  const taxa = decididos ? Math.round(S.orcamentos.filter(o => ['fechado','producao','entregue'].includes(o.status)).length / decididos * 100) : 0;
+  return `
+  <div class="top"><div><h1>Painel</h1><div class="sub">Visão geral do negócio</div></div>${mesNav()}</div>
+  <div class="grid g4" style="margin-bottom:14px">
+    <div class="card kpi hero"><div class="l">Resultado do mês</div><div class="v">${brl(res)}</div><div class="s">entradas − saídas pagas</div></div>
+    <div class="card kpi"><div class="l">Entradas</div><div class="v pos">${brl(ent)}</div><div class="s">recebido em ${MESES[+S.mes.slice(5)-1]}</div></div>
+    <div class="card kpi"><div class="l">Saídas</div><div class="v neg">${brl(sai)}</div><div class="s">pago em ${MESES[+S.mes.slice(5)-1]}</div></div>
+    <div class="card kpi"><div class="l">Lucro previsto</div><div class="v">${brl(lucroPrev)}</div><div class="s">${fechMes.length} serviço(s) fechado(s) no mês</div></div>
+  </div>
+  <div class="grid g4" style="margin-bottom:14px">
+    <div class="card kpi"><div class="l">A receber</div><div class="v">${brl(aReceber)}</div><div class="s">parcelas pendentes</div></div>
+    <div class="card kpi"><div class="l">A pagar</div><div class="v">${brl(aPagar)}</div><div class="s">saídas pendentes</div></div>
+    <div class="card kpi"><div class="l">Em negociação</div><div class="v">${brl(valAberto)}</div><div class="s">${abertos.length} orçamento(s) em aberto</div></div>
+    <div class="card kpi"><div class="l">Taxa de fechamento</div><div class="v">${taxa}%</div><div class="s">dos orçamentos já decididos</div></div>
+  </div>
+  <div class="grid g2" style="margin-bottom:14px">
+    <div class="card"><h3 style="margin-bottom:10px">Entradas × saídas (6 meses)</h3><div class="chart-box"><canvas id="ch1"></canvas></div></div>
+    <div class="card"><h3 style="margin-bottom:10px">Saídas por categoria</h3><div class="chart-box"><canvas id="ch2"></canvas></div></div>
+  </div>
+  <div class="card"><h3 style="margin-bottom:12px">Orçamentos em aberto</h3>
+    ${abertos.length ? `<div class="list">${abertos.slice().reverse().slice(0,6).map(orcRow).join('')}</div>` : `<div class="empty">Nenhum orçamento em aberto. 🎉</div>`}
+  </div>`;
+}
+let CH = [];
+function drawCharts(){
+  CH.forEach(c => c.destroy()); CH = [];
+  if (typeof Chart === 'undefined') return;
+  const all = movs(); const meses = []; for (let i = 5; i >= 0; i--) meses.push(mesShift(S.mes, -i));
+  const sum = (ym, tipo) => all.filter(m => m.data.startsWith(ym) && m.tipo === tipo && m.pago).reduce((s,m) => s + m.valor, 0);
+  const e = meses.map(m => sum(m,'entrada')), s = meses.map(m => sum(m,'saida'));
+  const css = getComputedStyle(document.documentElement);
+  const c1 = $('#ch1'), c2 = $('#ch2');
+  if (c1) CH.push(new Chart(c1, {type:'bar', data:{labels:meses.map(m => MESES[+m.slice(5)-1].slice(0,3)),
+    datasets:[{label:'Entradas', data:e, backgroundColor:'#B8732B', borderRadius:6}, {label:'Saídas', data:s, backgroundColor:'#2A1A0F', borderRadius:6}]},
+    options:{responsive:true, maintainAspectRatio:false, plugins:{legend:{position:'bottom'}}, scales:{y:{ticks:{callback:v => 'R$ ' + v.toLocaleString('pt-BR')}}}}}));
+  const cats = {}; all.filter(m => m.tipo === 'saida' && m.pago && m.data.startsWith(S.mes)).forEach(m => cats[m.cat || 'Outros'] = (cats[m.cat || 'Outros'] || 0) + m.valor);
+  const keys = Object.keys(cats);
+  if (c2){
+    if (!keys.length){ c2.parentElement.innerHTML = '<div class="empty" style="margin-top:30px">Sem saídas neste mês.</div>'; }
+    else CH.push(new Chart(c2, {type:'doughnut', data:{labels:keys, datasets:[{data:keys.map(k => cats[k]), backgroundColor:['#B8732B','#2A1A0F','#D9A04A','#6b4a2e','#8a9a5b','#c9b79c','#a2631f','#4d3320','#e0c58f','#7d6b55'], borderWidth:0}]},
+      options:{responsive:true, maintainAspectRatio:false, cutout:'62%', plugins:{legend:{position:'right'}}}}));
+  }
+}
+
+/* =====================================================================
+   ORÇAMENTOS (lista)
+   ===================================================================== */
+function orcRow(o){
+  return `<div class="row" onclick="editOrc('${o.id}')">
+    <div class="num">#${o.numero ?? '-'}</div>
+    <div class="main"><div class="t">${esc(o.cliente_nome || 'Sem cliente')}</div><div class="d">${esc(o.descricao || '—')} · ${fmtD(o.data)}</div></div>
+    <div class="val">${brl(o.total)}<small><span class="chip st-${o.status}">${STATUS[o.status] || o.status}</span></small></div>
+  </div>`;
+}
+function vOrcamentos(){
+  let a = S.orcamentos.slice().sort((x,y) => (y.numero||0) - (x.numero||0));
+  if (S.fOrc !== 'todos') a = a.filter(o => o.status === S.fOrc);
+  const q = S.qOrc.toLowerCase(); if (q) a = a.filter(o => [o.cliente_nome, o.descricao, o.endereco, '#'+o.numero].join(' ').toLowerCase().includes(q));
+  const cnt = k => S.orcamentos.filter(o => o.status === k).length;
+  return `
+  <div class="top"><div><h1>Orçamentos</h1><div class="sub">${S.orcamentos.length} no total</div></div>
+    <button class="btn btn-p btn-top-new" onclick="editOrc()">+ Novo orçamento</button></div>
+  <div class="tabs"><button class="tab ${S.fOrc==='todos'?'on':''}" onclick="S.fOrc='todos';render()">Todos</button>
+    ${Object.entries(STATUS).map(([k,l]) => `<button class="tab ${S.fOrc===k?'on':''}" onclick="S.fOrc='${k}';render()">${l} (${cnt(k)})</button>`).join('')}</div>
+  <input class="search" style="margin-bottom:14px" placeholder="Buscar por cliente, descrição, endereço…" value="${esc(S.qOrc)}" oninput="S.qOrc=this.value;keepFocus(render)">
+  ${a.length ? `<div class="list">${a.map(orcRow).join('')}</div>` : `<div class="empty">Nenhum orçamento por aqui ainda.<br><br><button class="btn btn-p" onclick="editOrc()">Criar o primeiro</button></div>`}`;
+}
+function keepFocus(fn){ const el = document.activeElement, pos = el && el.selectionStart; fn(); const n = document.querySelector('.search'); if (n){ n.focus(); try{ n.setSelectionRange(pos,pos); }catch(e){} } }
+
+/* =====================================================================
+   ORÇAMENTO — editor
+   ===================================================================== */
+let OE = null;
+const nextNum = () => S.orcamentos.reduce((m,o) => Math.max(m, o.numero || 0), 0) + 1;
+function newOrc(){
+  const c = S.config;
+  return {id:uid(), numero:nextNum(), cliente_id:'', cliente_nome:'', telefone:'', data:today(), descricao:'', endereco:'', status:'orcamento',
+    itens:[], chapas:0, chapas_manual:false, valor_chapa:c.valor_chapa, lucro_pct:c.lucro_pct, desconto:0,
+    entrada_pct:c.entrada_pct, entrada_auto:true, entrada:0, entrada_data:'', entrada_paga:false, restante_data:'', restante_pago:false,
+    meios:'PIX', condicoes:c.condicoes, prazo:c.prazo, garantia:c.garantia, validade_dias:c.validade_dias, especificacoes:'', observacao:''};
+}
+function editOrc(id){
+  OE = id ? JSON.parse(JSON.stringify(S.orcamentos.find(o => o.id === id))) : newOrc();
+  const cli = S.clientes.find(c => c.id === OE.cliente_id); OE.telefone = cli ? cli.telefone : '';
+  const isNew = !id;
+  openModal('m-orc', `
+  <div class="sh-h"><h2>${isNew ? 'Novo orçamento' : 'Orçamento #' + OE.numero}</h2><button class="x-btn" onclick="closeModal('m-orc')">×</button></div>
+  <div class="sh-b">
+    <div class="frow">
+      <div class="field"><label>Cliente</label><input id="o-cli" list="dl-cli" value="${esc(OE.cliente_nome)}" placeholder="Nome do cliente" oninput="oeCliche(this.value)"><datalist id="dl-cli">${S.clientes.map(c => `<option value="${esc(c.nome)}">`).join('')}</datalist></div>
+      <div class="field"><label>WhatsApp do cliente</label><input id="o-tel" inputmode="tel" value="${esc(OE.telefone)}" placeholder="(64) 99999-9999" oninput="OE.telefone=this.value"></div>
+    </div>
+    <div class="frow">
+      <div class="field"><label>O que será feito</label><input value="${esc(OE.descricao)}" placeholder="Ex.: Cozinha planejada" oninput="OE.descricao=this.value"></div>
+      <div class="field"><label>Endereço / bairro</label><input value="${esc(OE.endereco)}" oninput="OE.endereco=this.value"></div>
+    </div>
+    <div class="frow">
+      <div class="field"><label>Data</label><input type="date" value="${OE.data}" onchange="OE.data=this.value"></div>
+      <div class="field"><label>Situação</label><select onchange="OE.status=this.value">${Object.entries(STATUS).map(([k,l]) => `<option value="${k}" ${OE.status===k?'selected':''}>${l}</option>`).join('')}</select></div>
+    </div>
+
+    ${OE.valor_fixo != null && OE.valor_fixo !== '' ? `<div class="banner" id="o-fixo">📥 Orçamento importado da planilha antiga: valor fixo de <b>${brl(OE.valor_fixo)}</b> (custo ${brl(OE.custo)}). Para refazer o cálculo por materiais, <button class="btn btn-g btn-sm" onclick="oeRecalc()">usar cálculo por itens</button></div>` : ''}
+    <div class="sec-t">Materiais e custos</div>
+    <div class="pick"><input class="search" style="max-width:none" id="o-pick" placeholder="🔎 Buscar no catálogo (MDF, corrediça, ajudante…)" oninput="oePick(this.value)" autocomplete="off"><div class="pick-res hide" id="o-pick-res"></div></div>
+    <div style="margin:10px 0"><button class="btn btn-g btn-sm" onclick="oeAddFree()">+ Item avulso</button></div>
+    <div class="it-h"><span>Item</span><span>Qtd</span><span>Valor un.</span><span style="text-align:right">Total</span><span></span></div>
+    <div id="o-itens"></div>
+
+    <div class="sec-t">Mão de obra e lucro</div>
+    <div class="frow3">
+      <div class="field"><label>Chapas de MDF (Júlio)</label><input type="number" inputmode="decimal" step="any" id="o-chapas" value="${OE.chapas}" oninput="OE.chapas=num(this.value);OE.chapas_manual=true;oeSum()"></div>
+      <div class="field"><label>Valor por chapa</label><input type="number" inputmode="decimal" step="any" value="${OE.valor_chapa}" oninput="OE.valor_chapa=num(this.value);oeSum()"></div>
+      <div class="field"><label>Lucro sobre materiais (%)</label><input type="number" inputmode="decimal" step="any" value="${OE.lucro_pct}" oninput="OE.lucro_pct=num(this.value);oeSum()"></div>
+    </div>
+    <div class="hint" style="margin-top:-6px">As chapas são contadas sozinhas a partir dos itens marcados como chapa no catálogo; você pode corrigir manualmente.</div>
+    <div class="field" style="margin-top:12px;max-width:240px"><label>Desconto (R$)</label><input type="number" inputmode="decimal" step="any" value="${OE.desconto}" oninput="OE.desconto=num(this.value);oeSum()"></div>
+
+    <div class="sumbox">
+      <div class="ln"><span>Materiais e custos</span><span id="s-mat"></span></div>
+      <div class="ln"><span>Lucro (<span id="s-pct"></span>%)</span><span id="s-lucro"></span></div>
+      <div class="ln"><span>Júlio (<span id="s-ch"></span> chapas)</span><span id="s-julio"></span></div>
+      <div class="ln" id="s-descl"><span>Desconto</span><span id="s-desc"></span></div>
+      <div class="ln big"><span>Valor final</span><span id="s-total"></span></div>
+      <div class="ln sm"><span>Seu custo (materiais + Júlio)</span><span id="s-custo"></span></div>
+      <div class="ln sm"><span>Lucro líquido estimado</span><span id="s-lreal"></span></div>
+    </div>
+
+    <div class="sec-t">Forma de pagamento</div>
+    <div class="pct-btns" id="o-pcts"></div>
+    <div class="frow">
+      <div class="field"><label>Entrada (R$)</label><input type="number" inputmode="decimal" step="any" id="o-ent" value="${OE.entrada}" oninput="OE.entrada=num(this.value);OE.entrada_auto=false;oePcts();oeSum()"></div>
+      <div class="field"><label>Restante (R$)</label><input id="o-rest" disabled></div>
+    </div>
+    <div class="frow">
+      <div class="field"><label>Data da entrada</label><input type="date" value="${OE.entrada_data}" onchange="OE.entrada_data=this.value"></div>
+      <div class="field"><label>Data do restante</label><input type="date" value="${OE.restante_data}" onchange="OE.restante_data=this.value"></div>
+    </div>
+    <div class="frow">
+      <div class="field"><label><input type="checkbox" ${OE.entrada_paga?'checked':''} onchange="OE.entrada_paga=this.checked" style="width:auto;margin-right:6px">Entrada já recebida</label></div>
+      <div class="field"><label><input type="checkbox" ${OE.restante_pago?'checked':''} onchange="OE.restante_pago=this.checked" style="width:auto;margin-right:6px">Restante já recebido</label></div>
+    </div>
+    <div class="field"><label>Meios aceitos</label><input value="${esc(OE.meios)}" placeholder="PIX, dinheiro, transferência, cartão" oninput="OE.meios=this.value"></div>
+    <div class="field"><label>Condições do pagamento</label><textarea oninput="OE.condicoes=this.value">${esc(OE.condicoes)}</textarea></div>
+
+    <div class="sec-t">Para o PDF do cliente</div>
+    <div class="field"><label>Especificações (uma por linha)</label><textarea style="min-height:100px" placeholder="MDF 15 mm branco&#10;Corrediças com amortecimento&#10;Puxadores perfil alumínio" oninput="OE.especificacoes=this.value">${esc(OE.especificacoes)}</textarea></div>
+    <div class="field"><label>Prazo de entrega</label><input value="${esc(OE.prazo)}" oninput="OE.prazo=this.value"></div>
+    <div class="frow">
+      <div class="field"><label>Garantia</label><input value="${esc(OE.garantia)}" oninput="OE.garantia=this.value"></div>
+      <div class="field"><label>Validade da proposta (dias)</label><input type="number" inputmode="numeric" value="${OE.validade_dias}" oninput="OE.validade_dias=num(this.value)"></div>
+    </div>
+    <div class="field"><label>Observações internas (não vai no PDF)</label><textarea oninput="OE.observacao=this.value">${esc(OE.observacao)}</textarea></div>
+  </div>
+  <div class="sh-f">
+    ${isNew ? '' : `<button class="btn btn-r btn-sm" onclick="oeDelete()" style="margin-right:auto">Excluir</button>`}
+    <button class="btn btn-g" onclick="oeSave(true)">📄 Salvar e gerar PDF</button>
+    <button class="btn btn-p" onclick="oeSave(false)">Salvar</button>
+  </div>`);
+  oeItens(); oePcts(); oeSum();
+}
+function oeRecalc(){
+  if (!confirm('Passar a calcular este orçamento pelos itens? O valor fixo importado será descartado.')) return;
+  OE.valor_fixo = null; OE.chapas_manual = false; OE.entrada_auto = true; OE.entrada_pct = S.config.entrada_pct; OE.lucro_pct = S.config.lucro_pct;
+  const b = $('#o-fixo'); if (b) b.remove(); oeSum();
+}
+function oeCliche(v){
+  OE.cliente_nome = v;
+  const c = S.clientes.find(x => x.nome.toLowerCase() === v.trim().toLowerCase());
+  if (c){ OE.cliente_id = c.id; if (c.telefone && !$('#o-tel').value){ $('#o-tel').value = c.telefone; OE.telefone = c.telefone; } if (!OE.endereco && c.endereco) OE.endereco = c.endereco; } else OE.cliente_id = '';
+}
+function oePick(q){
+  const box = $('#o-pick-res'); q = q.trim().toLowerCase();
+  if (!q){ box.classList.add('hide'); return; }
+  const r = S.materiais.filter(m => m.nome.toLowerCase().includes(q)).slice(0, 12);
+  box.innerHTML = r.length ? r.map(m => `<button onclick="oeAdd('${m.id}')"><span>${esc(m.nome)}</span><small>${brl(m.preco)}/${esc(m.unidade || 'un')}</small></button>`).join('') : `<button onclick="oeAddFree($('#o-pick').value)"><span>Adicionar “${esc(q)}” como item avulso</span></button>`;
+  box.classList.remove('hide');
+}
+function oeAdd(mid){
+  const m = S.materiais.find(x => x.id === mid); if (!m) return;
+  const ex = OE.itens.find(i => i.mid === mid);
+  if (ex) ex.qtd = num(ex.qtd) + 1; else OE.itens.push({mid, nome:m.nome, qtd:1, unit:num(m.preco), chapa:!!m.is_chapa});
+  $('#o-pick').value = ''; $('#o-pick-res').classList.add('hide'); oeItens(); oeSum();
+}
+function oeAddFree(nome){ OE.itens.push({mid:'', nome:typeof nome === 'string' ? nome : '', qtd:1, unit:0, chapa:false}); $('#o-pick').value = ''; $('#o-pick-res').classList.add('hide'); oeItens(); oeSum(); }
+function oeItem(i, k, v){ OE.itens[i][k] = (k === 'nome') ? v : num(v); const t = $('#it-t-'+i); if (t) t.textContent = brl(OE.itens[i].qtd * OE.itens[i].unit); oeSum(); }
+function oeDel(i){ OE.itens.splice(i,1); oeItens(); oeSum(); }
+function oeItens(){
+  $('#o-itens').innerHTML = OE.itens.length ? OE.itens.map((it,i) => `<div class="it">
+    <input class="it-n" value="${esc(it.nome)}" placeholder="Descrição" oninput="oeItem(${i},'nome',this.value)">
+    <input class="it-q" type="number" inputmode="decimal" step="any" value="${it.qtd}" oninput="oeItem(${i},'qtd',this.value)">
+    <input class="it-u" type="number" inputmode="decimal" step="any" value="${it.unit}" oninput="oeItem(${i},'unit',this.value)">
+    <div class="it-t" id="it-t-${i}">${brl(it.qtd * it.unit)}</div>
+    <button class="x" onclick="oeDel(${i})" aria-label="Remover">×</button></div>`).join('')
+    : `<div class="hint">Nenhum item ainda. Busque no catálogo acima ou adicione um item avulso.</div>`;
+}
+function oePcts(){
+  const ps = [0,30,40,50,60,70,100];
+  $('#o-pcts').innerHTML = '<span class="hint" style="align-self:center">Entrada:</span>' + ps.map(p => `<button class="${OE.entrada_auto && num(OE.entrada_pct) === p ? 'on' : ''}" onclick="oeSetPct(${p})">${p}%</button>`).join('');
+}
+function oeSetPct(p){ OE.entrada_pct = p; OE.entrada_auto = true; oePcts(); oeSum(); }
+function oeSum(){
+  if (!OE.chapas_manual){ OE.chapas = chapasDe(OE); const ci = $('#o-chapas'); if (ci) ci.value = OE.chapas; }
+  let c = calc(OE);
+  if (OE.entrada_auto){ OE.entrada = r2(c.total * num(OE.entrada_pct) / 100); const ei = $('#o-ent'); if (ei) ei.value = OE.entrada; c = calc(OE); }
+  const set = (id, v) => { const e = $('#'+id); if (e) e.textContent = v; };
+  set('s-mat', brl(c.mat)); set('s-pct', OE.lucro_pct); set('s-lucro', brl(c.lucro)); set('s-ch', OE.chapas); set('s-julio', brl(c.julio));
+  set('s-desc', '− ' + brl(OE.desconto)); $('#s-descl').classList.toggle('hide', !num(OE.desconto));
+  set('s-total', brl(c.total)); set('s-custo', brl(c.custo)); set('s-lreal', brl(c.lucroReal));
+  const r = $('#o-rest'); if (r) r.value = brl(c.restante);
+}
+async function oeSave(pdf){
+  const nome = (OE.cliente_nome || '').trim();
+  if (!nome){ toast('Informe o nome do cliente.'); return; }
+  // cria/atualiza cliente automaticamente
+  let cli = S.clientes.find(c => c.id === OE.cliente_id) || S.clientes.find(c => c.nome.toLowerCase() === nome.toLowerCase());
+  try {
+    if (!cli) cli = await upsertLocalState('clientes', {nome, telefone:OE.telefone || '', endereco:OE.endereco || ''});
+    else if (OE.telefone && cli.telefone !== OE.telefone){ cli.telefone = OE.telefone; await upsertLocalState('clientes', cli); }
+    OE.cliente_id = cli.id; OE.cliente_nome = nome;
+    const c = calc(OE); OE.total = c.total; OE.custo = c.custo; OE.lucro_real = c.lucroReal;
+    OE.entrada = c.entrada;
+    const rec = {...OE}; delete rec.telefone;
+    const saved = await upsertLocalState('orcamentos', rec);
+    closeModal('m-orc'); toast('Orçamento salvo ✔'); render();
+    if (pdf) openPdf(saved.id);
+  } catch(e){ alert('Erro ao salvar: ' + e.message); }
+}
+async function oeDelete(){
+  if (!confirm('Excluir este orçamento? Não dá para desfazer.')) return;
+  await removeState('orcamentos', OE.id); closeModal('m-orc'); toast('Orçamento excluído'); render();
+}
+
+/* =====================================================================
+   PDF / WHATSAPP
+   ===================================================================== */
+function pdfDoc(o, logo){
+  const c = calc(o), cfg = S.config;
+  const valid = fmtD(addDays(o.data, num(o.validade_dias) || 15));
+  const specs = (o.especificacoes || '').split('\n').map(s => s.trim()).filter(Boolean);
+  const W = 'width:794px;min-height:1000px;background:#fff;color:#2A1A0F;font-family:\'DM Sans\',Arial,sans-serif;font-size:14px;line-height:1.5;position:relative';
+  return `<div style="${W}">
+    <div style="background:#2A1A0F;padding:26px 40px;display:flex;justify-content:space-between;align-items:center">
+      <img src="${logo}" style="height:62px;width:auto">
+      <div style="text-align:right;color:#F7E7C8"><div style="font-family:Georgia,serif;font-size:13px;letter-spacing:3px;opacity:.8">ORÇAMENTO</div><div style="font-family:Georgia,serif;font-size:30px;font-weight:700;color:#D9A04A">Nº ${String(o.numero || 0).padStart(4,'0')}</div></div>
+    </div>
+    <div style="height:6px;background:linear-gradient(90deg,#B8732B,#D9A04A,#B8732B)"></div>
+    <div style="padding:30px 40px 24px">
+      <div style="display:flex;justify-content:space-between;gap:20px">
+        <div><div style="font-size:11px;letter-spacing:2px;color:#85735f;font-weight:700">CLIENTE</div><div style="font-size:19px;font-weight:700;margin-top:2px">${esc(o.cliente_nome)}</div>${o.endereco ? `<div style="color:#85735f">${esc(o.endereco)}</div>` : ''}</div>
+        <div style="text-align:right"><div style="font-size:11px;letter-spacing:2px;color:#85735f;font-weight:700">DATA</div><div style="font-size:16px;font-weight:600;margin-top:2px">${fmtD(o.data)}</div><div style="color:#85735f;font-size:12.5px">Válido até ${valid}</div></div>
+      </div>
+      <div style="margin-top:26px;border-left:4px solid #B8732B;padding:4px 0 4px 16px">
+        <div style="font-size:11px;letter-spacing:2px;color:#85735f;font-weight:700">PROJETO</div>
+        <div style="font-family:Georgia,serif;font-size:24px;font-weight:700;margin-top:2px">${esc(o.descricao || 'Móveis planejados')}</div>
+      </div>
+      ${specs.length ? `<div style="margin-top:20px"><div style="font-size:11px;letter-spacing:2px;color:#85735f;font-weight:700;margin-bottom:8px">ESPECIFICAÇÕES</div>
+        <div style="columns:2;column-gap:30px">${specs.map(s => `<div style="break-inside:avoid;padding:3px 0 3px 18px;position:relative"><span style="position:absolute;left:0;color:#B8732B;font-weight:700">■</span>${esc(s)}</div>`).join('')}</div></div>` : ''}
+      <div style="margin-top:28px;background:#F3EADB;border-radius:14px;padding:22px 26px;display:flex;justify-content:space-between;align-items:center">
+        <div><div style="font-size:11px;letter-spacing:2px;color:#85735f;font-weight:700">VALOR TOTAL</div>${num(o.desconto) ? `<div style="font-size:12.5px;color:#4F7A3A;margin-top:2px">Desconto aplicado: ${brl(o.desconto)}</div>` : ''}</div>
+        <div style="font-family:Georgia,serif;font-size:38px;font-weight:700;color:#2A1A0F">${brl(c.total)}</div>
+      </div>
+      <div style="margin-top:22px;border:1.5px solid #2A1A0F;border-radius:14px;overflow:hidden">
+        <div style="background:#2A1A0F;color:#F7E7C8;padding:9px 22px;font-size:11px;letter-spacing:2px;font-weight:700">FORMA DE PAGAMENTO</div>
+        <div style="padding:16px 22px">
+          <div style="display:flex;gap:16px">
+            <div style="flex:1;background:#FBF7EF;border-radius:10px;padding:12px 16px"><div style="font-size:11px;color:#85735f;font-weight:700;letter-spacing:1px">ENTRADA${o.entrada_data ? ' · ' + fmtD(o.entrada_data) : ''}</div><div style="font-family:Georgia,serif;font-size:22px;font-weight:700;margin-top:2px">${brl(c.entrada)}</div></div>
+            <div style="flex:1;background:#FBF7EF;border-radius:10px;padding:12px 16px"><div style="font-size:11px;color:#85735f;font-weight:700;letter-spacing:1px">RESTANTE${o.restante_data ? ' · ' + fmtD(o.restante_data) : ''}</div><div style="font-family:Georgia,serif;font-size:22px;font-weight:700;margin-top:2px">${brl(c.restante)}</div></div>
+          </div>
+          ${o.meios ? `<div style="margin-top:12px"><b>Meios aceitos:</b> ${esc(o.meios)}</div>` : ''}
+          ${cfg.pix ? `<div style="margin-top:4px"><b>Chave PIX:</b> ${esc(cfg.pix)}</div>` : ''}
+          ${o.condicoes ? `<div style="margin-top:4px;color:#4d3f30">${esc(o.condicoes)}</div>` : ''}
+        </div>
+      </div>
+      <div style="display:flex;gap:16px;margin-top:20px">
+        ${o.prazo ? `<div style="flex:1.4"><div style="font-size:11px;letter-spacing:2px;color:#85735f;font-weight:700">PRAZO DE ENTREGA</div><div style="margin-top:2px">${esc(o.prazo)}</div></div>` : ''}
+        ${o.garantia ? `<div style="flex:1"><div style="font-size:11px;letter-spacing:2px;color:#85735f;font-weight:700">GARANTIA</div><div style="margin-top:2px">${esc(o.garantia)}</div></div>` : ''}
+      </div>
+      <div style="margin-top:44px;display:flex;gap:50px">
+        <div style="flex:1;border-top:1.2px solid #2A1A0F;padding-top:6px;text-align:center;font-size:12.5px;color:#85735f">${esc(cfg.responsavel || cfg.empresa)}</div>
+        <div style="flex:1;border-top:1.2px solid #2A1A0F;padding-top:6px;text-align:center;font-size:12.5px;color:#85735f">${esc(o.cliente_nome)} — de acordo</div>
+      </div>
+    </div>
+    <div style="position:absolute;left:0;right:0;bottom:0;background:#2A1A0F;color:#d9c7ab;padding:12px 40px;font-size:12px;display:flex;justify-content:space-between">
+      <span>${esc(cfg.empresa)}${cfg.cidade ? ' · ' + esc(cfg.cidade) : ''}</span><span>${cfg.telefone ? '📞 ' + esc(cfg.telefone) : ''}</span>
+    </div>
+  </div>`;
+}
+let PDF_LOGO = null;
+async function openPdf(id){
+  const o = S.orcamentos.find(x => x.id === id); if (!o) return;
+  PDF_LOGO = await toPng(logoSrc(false));
+  openModal('m-pdf', `
+  <div class="sh-h"><h2>PDF — ${esc(o.cliente_nome)}</h2><button class="x-btn" onclick="closeModal('m-pdf')">×</button></div>
+  <div class="sh-b"><div class="pdf-wrap" id="pdf-wrap"><div class="pdf-scale" id="pdf-scale">${pdfDoc(o, PDF_LOGO)}</div></div>
+  <div class="hint" style="margin-top:10px">Confira o documento antes de enviar ao cliente.</div></div>
+  <div class="sh-f"><button class="btn btn-g" onclick="editOrc('${o.id}');closeModal('m-pdf')">✏️ Editar</button>
+    <button class="btn btn-d" onclick="pdfDownload('${o.id}')">⬇ Baixar PDF</button>
+    <button class="btn btn-wa" onclick="pdfWhats('${o.id}')">Enviar por WhatsApp</button></div>`);
+  const wrap = $('#pdf-wrap'), sc = $('#pdf-scale'); const k = Math.min(1, (wrap.clientWidth - 28) / 794);
+  sc.style.transform = `scale(${k})`; wrap.style.height = (sc.firstElementChild.offsetHeight * k + 28) + 'px';
+}
+async function pdfBlob(o){
+  const host = document.createElement('div'); host.style.cssText = 'position:fixed;left:-10000px;top:0;width:794px';
+  host.innerHTML = pdfDoc(o, PDF_LOGO || await toPng(logoSrc(false))); document.body.appendChild(host);
+  try {
+    const worker = html2pdf().set({margin:0, image:{type:'jpeg', quality:.98}, html2canvas:{scale:2, useCORS:true, backgroundColor:'#fff'}, jsPDF:{unit:'px', format:[794, 1123], hotfixes:['px_scaling'], orientation:'portrait'}}).from(host.firstElementChild);
+    return await worker.outputPdf('blob');
+  } finally { host.remove(); }
+}
+const pdfName = o => `Orcamento-${String(o.numero || 0).padStart(4,'0')}-${(o.cliente_nome || 'cliente').replace(/[^\w]+/g,'-')}.pdf`;
+function saveBlob(blob, name){ const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 4000); }
+async function pdfDownload(id){
+  const o = S.orcamentos.find(x => x.id === id); toast('Gerando PDF…');
+  try { saveBlob(await pdfBlob(o), pdfName(o)); toast('PDF baixado ✔'); } catch(e){ alert('Não foi possível gerar o PDF: ' + e.message); }
+}
+async function pdfWhats(id){
+  const o = S.orcamentos.find(x => x.id === id), cli = S.clientes.find(c => c.id === o.cliente_id), c = calc(o);
+  const msg = `Olá, ${o.cliente_nome.split(' ')[0]}! Segue o orçamento nº ${o.numero} da ${S.config.empresa}${o.descricao ? ' (' + o.descricao + ')' : ''}.\n\n💰 Valor total: ${brl(c.total)}\n💳 Entrada: ${brl(c.entrada)} + restante ${brl(c.restante)}\n📅 Válido até ${fmtD(addDays(o.data, num(o.validade_dias) || 15))}\n\nQualquer dúvida estou à disposição!`;
+  toast('Preparando PDF…');
+  let blob; try { blob = await pdfBlob(o); } catch(e){ alert('Erro ao gerar PDF: ' + e.message); return; }
+  const file = new File([blob], pdfName(o), {type:'application/pdf'});
+  if (navigator.canShare && navigator.canShare({files:[file]})){
+    try { await navigator.share({files:[file], text:msg}); return; } catch(e){ if (e.name === 'AbortError') return; }
+  }
+  saveBlob(blob, pdfName(o));
+  const ph = digits(cli && cli.telefone); const to = ph ? (ph.length <= 11 ? '55' + ph : ph) : '';
+  window.open(`https://wa.me/${to}?text=${encodeURIComponent(msg)}`, '_blank');
+  toast('PDF baixado — anexe-o na conversa do WhatsApp');
+}
+
+/* =====================================================================
+   CLIENTES
+   ===================================================================== */
+function vClientes(){
+  const q = S.qCli.toLowerCase();
+  let a = S.clientes.slice().sort((x,y) => x.nome.localeCompare(y.nome));
+  if (q) a = a.filter(c => [c.nome, c.telefone, c.endereco].join(' ').toLowerCase().includes(q));
+  return `<div class="top"><div><h1>Clientes</h1><div class="sub">${S.clientes.length} cadastrado(s)</div></div><button class="btn btn-p btn-top-new" onclick="editCli()">+ Novo cliente</button></div>
+  <input class="search" style="margin-bottom:14px" placeholder="Buscar cliente…" value="${esc(S.qCli)}" oninput="S.qCli=this.value;keepFocus(render)">
+  ${a.length ? `<div class="list">${a.map(c => {
+    const os = S.orcamentos.filter(o => o.cliente_id === c.id), fech = os.filter(o => ['fechado','producao','entregue'].includes(o.status));
+    return `<div class="row" onclick="editCli('${c.id}')"><div class="main"><div class="t">${esc(c.nome)}</div><div class="d">${esc(c.telefone || 'sem telefone')}${c.endereco ? ' · ' + esc(c.endereco) : ''}</div></div>
+      <div class="val">${brl(fech.reduce((s,o) => s + num(o.total), 0))}<small>${os.length} orçamento(s)</small></div></div>`;
+  }).join('')}</div>` : `<div class="empty">Os clientes aparecem aqui automaticamente quando você faz um orçamento.<br><br><button class="btn btn-p" onclick="editCli()">Cadastrar cliente</button></div>`}`;
+}
+function editCli(id){
+  const c = id ? S.clientes.find(x => x.id === id) : {nome:'', telefone:'', endereco:'', observacao:''};
+  const os = id ? S.orcamentos.filter(o => o.cliente_id === id).sort((a,b) => (b.numero||0)-(a.numero||0)) : [];
+  openModal('m-cli', `<div class="sh-h"><h2>${id ? 'Cliente' : 'Novo cliente'}</h2><button class="x-btn" onclick="closeModal('m-cli')">×</button></div>
+  <div class="sh-b">
+    <div class="field"><label>Nome</label><input id="c-nome" value="${esc(c.nome)}"></div>
+    <div class="field"><label>WhatsApp</label><input id="c-tel" inputmode="tel" value="${esc(c.telefone)}"></div>
+    <div class="field"><label>Endereço / bairro</label><input id="c-end" value="${esc(c.endereco)}"></div>
+    <div class="field"><label>Observações</label><textarea id="c-obs">${esc(c.observacao)}</textarea></div>
+    ${os.length ? `<div class="sec-t">Histórico</div><div class="list">${os.map(o => `<div class="row" onclick="closeModal('m-cli');editOrc('${o.id}')"><div class="num">#${o.numero}</div><div class="main"><div class="t">${esc(o.descricao || '—')}</div><div class="d">${fmtD(o.data)}</div></div><div class="val">${brl(o.total)}<small><span class="chip st-${o.status}">${STATUS[o.status]}</span></small></div></div>`).join('')}</div>` : ''}
+  </div>
+  <div class="sh-f">${id ? `<button class="btn btn-r btn-sm" style="margin-right:auto" onclick="delCli('${id}')">Excluir</button>` : ''}
+    ${c.telefone ? `<a class="btn btn-wa btn-sm" style="text-decoration:none" target="_blank" href="https://wa.me/55${digits(c.telefone)}">WhatsApp</a>` : ''}
+    <button class="btn btn-p" onclick="saveCli('${id || ''}')">Salvar</button></div>`, 'sm');
+}
+async function saveCli(id){
+  const nome = $('#c-nome').value.trim(); if (!nome){ toast('Informe o nome.'); return; }
+  const base = id ? S.clientes.find(x => x.id === id) : {};
+  await upsertLocalState('clientes', {...base, nome, telefone:$('#c-tel').value.trim(), endereco:$('#c-end').value.trim(), observacao:$('#c-obs').value.trim()});
+  closeModal('m-cli'); toast('Cliente salvo ✔'); render();
+}
+async function delCli(id){ if (!confirm('Excluir este cliente? Os orçamentos dele continuam existindo.')) return; await removeState('clientes', id); closeModal('m-cli'); render(); }
+
+/* =====================================================================
+   CATÁLOGO
+   ===================================================================== */
+const TIPOS = {material:'Material', ferragem:'Ferragem', mao_de_obra:'Mão de obra / custos'};
+function vCatalogo(){
+  let a = S.materiais.slice().sort((x,y) => x.nome.localeCompare(y.nome));
+  if (S.fMat !== 'todos') a = a.filter(m => m.tipo === S.fMat);
+  const q = S.qMat.toLowerCase(); if (q) a = a.filter(m => m.nome.toLowerCase().includes(q));
+  return `<div class="top"><div><h1>Catálogo</h1><div class="sub">Materiais, ferragens e custos com preço — altere o valor e novos orçamentos já usam o preço atualizado</div></div><button class="btn btn-p btn-top-new" onclick="editMat()">+ Novo item</button></div>
+  <div class="tabs"><button class="tab ${S.fMat==='todos'?'on':''}" onclick="S.fMat='todos';render()">Todos</button>${Object.entries(TIPOS).map(([k,l]) => `<button class="tab ${S.fMat===k?'on':''}" onclick="S.fMat='${k}';render()">${l}</button>`).join('')}</div>
+  <input class="search" style="margin-bottom:14px" placeholder="Buscar item…" value="${esc(S.qMat)}" oninput="S.qMat=this.value;keepFocus(render)">
+  ${S.materiais.length ? `<div class="list">${a.map(m => `<div class="row" onclick="editMat('${m.id}')"><div class="main"><div class="t">${esc(m.nome)} ${m.is_chapa ? '<span class="chip st-orcamento">chapa</span>' : ''}</div><div class="d">${TIPOS[m.tipo] || ''} · por ${esc(m.unidade || 'un')}</div></div>
+    <div class="val" onclick="event.stopPropagation()"><input type="number" step="any" inputmode="decimal" value="${num(m.preco)}" style="width:96px;padding:8px;border:1px solid var(--line);border-radius:9px;text-align:right;font-weight:700" onchange="quickPreco('${m.id}',this.value)"></div></div>`).join('')}</div>`
+    : `<div class="empty">Seu catálogo está vazio.<br><br><button class="btn btn-p" onclick="seedCatalogo()">Carregar itens iniciais da planilha</button></div>`}`;
+}
+async function quickPreco(id, v){ const m = S.materiais.find(x => x.id === id); m.preco = num(v); await upsertLocalState('materiais', m); toast('Preço atualizado ✔'); }
+function editMat(id){
+  const m = id ? S.materiais.find(x => x.id === id) : {nome:'', tipo:'material', unidade:'un', preco:0, is_chapa:false, categoria:''};
+  openModal('m-mat', `<div class="sh-h"><h2>${id ? 'Editar item' : 'Novo item'}</h2><button class="x-btn" onclick="closeModal('m-mat')">×</button></div>
+  <div class="sh-b">
+    <div class="field"><label>Nome</label><input id="m-nome" value="${esc(m.nome)}"></div>
+    <div class="frow"><div class="field"><label>Tipo</label><select id="m-tipo">${Object.entries(TIPOS).map(([k,l]) => `<option value="${k}" ${m.tipo===k?'selected':''}>${l}</option>`).join('')}</select></div>
+    <div class="field"><label>Unidade</label><input id="m-un" value="${esc(m.unidade || 'un')}" placeholder="un, m, chapa, km, dia"></div></div>
+    <div class="field"><label>Preço (R$)</label><input id="m-preco" type="number" step="any" inputmode="decimal" value="${num(m.preco)}"></div>
+    <div class="field"><label><input type="checkbox" id="m-chapa" ${m.is_chapa?'checked':''} style="width:auto;margin-right:6px">É chapa de MDF (conta para o valor do Júlio)</label></div>
+  </div>
+  <div class="sh-f">${id ? `<button class="btn btn-r btn-sm" style="margin-right:auto" onclick="delMat('${id}')">Excluir</button>` : ''}<button class="btn btn-p" onclick="saveMat('${id || ''}')">Salvar</button></div>`, 'sm');
+}
+async function saveMat(id){
+  const nome = $('#m-nome').value.trim(); if (!nome){ toast('Informe o nome.'); return; }
+  const base = id ? S.materiais.find(x => x.id === id) : {};
+  await upsertLocalState('materiais', {...base, nome, tipo:$('#m-tipo').value, unidade:$('#m-un').value.trim() || 'un', preco:num($('#m-preco').value), is_chapa:$('#m-chapa').checked});
+  closeModal('m-mat'); toast('Item salvo ✔'); render();
+}
+async function delMat(id){ if (!confirm('Excluir este item do catálogo?')) return; await removeState('materiais', id); closeModal('m-mat'); render(); }
+// catálogo completo vem de dados-planilha.js (aba MATERIAIS da planilha original)
+const nomeKey = n => String(n || '').trim().toLowerCase();
+async function seedCatalogo(){
+  const cat = (window.IMPORT_DATA && window.IMPORT_DATA.catalogo) || [];
+  if (!cat.length){ alert('Arquivo dados-planilha.js não encontrado.'); return; }
+  const tem = new Set(S.materiais.map(m => nomeKey(m.nome)));
+  const novos = cat.filter(m => !tem.has(nomeKey(m.nome)));
+  if (!novos.length){ toast('O catálogo já está completo.'); return; }
+  try { await DB.saveMany('materiais', novos.map(m => ({...m}))); S.materiais = await DB.list('materiais'); toast(novos.length + ' itens adicionados ao catálogo ✔'); render(); }
+  catch(e){ alert('Erro ao carregar catálogo: ' + e.message); }
+}
+// importa clientes e orçamentos antigos (2021–2025) da planilha
+async function importarHistorico(){
+  const D = window.IMPORT_DATA;
+  if (!D || !D.orcamentos){ alert('Arquivo dados-planilha.js não encontrado.'); return; }
+  if (S.orcamentos.some(o => o.importado)){ alert('O histórico da planilha já foi importado.'); return; }
+  if (!confirm('Importar ' + D.orcamentos.length + ' orçamentos e ' + D.clientes.length + ' clientes da planilha antiga? Isso só deve ser feito uma vez.')) return;
+  try {
+    const existentes = new Map(S.clientes.map(c => [nomeKey(c.nome), c.id]));
+    const remap = {}; const clientesNovos = [];
+    D.clientes.forEach(c => { const id = existentes.get(nomeKey(c.nome)); if (id) remap[c.id] = id; else clientesNovos.push({...c}); });
+    const base = nextNum() - 1;
+    const orcs = D.orcamentos.map(o => ({...o, numero:base + o.numero, cliente_id:remap[o.cliente_id] || o.cliente_id}));
+    if (clientesNovos.length) await DB.saveMany('clientes', clientesNovos);
+    await DB.saveMany('orcamentos', orcs);
+    S.clientes = await DB.list('clientes'); S.orcamentos = await DB.list('orcamentos');
+    toast('Histórico importado ✔'); render();
+  } catch(e){ alert('Erro na importação: ' + e.message); }
+}
+
+/* =====================================================================
+   FINANCEIRO
+   ===================================================================== */
+function vFinanceiro(){
+  const all = movs().filter(m => m.data.startsWith(S.mes));
+  const f = S.fFin;
+  let a = all.filter(m => f === 'todos' ? true : f === 'pendente' ? !m.pago : m.tipo === f);
+  a.sort((x,y) => (y.data || '').localeCompare(x.data || ''));
+  const ent = all.filter(m => m.tipo === 'entrada' && m.pago).reduce((s,m) => s + m.valor, 0);
+  const sai = all.filter(m => m.tipo === 'saida' && m.pago).reduce((s,m) => s + m.valor, 0);
+  return `<div class="top"><div><h1>Financeiro</h1><div class="sub">Entradas e saídas do negócio</div></div>${mesNav()}</div>
+  <div class="grid g3" style="margin-bottom:14px">
+    <div class="card kpi"><div class="l">Entradas</div><div class="v pos">${brl(ent)}</div></div>
+    <div class="card kpi"><div class="l">Saídas</div><div class="v neg">${brl(sai)}</div></div>
+    <div class="card kpi hero"><div class="l">Resultado</div><div class="v">${brl(ent - sai)}</div></div>
+  </div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px"><button class="btn btn-p" onclick="editLanc('entrada')">+ Entrada</button><button class="btn btn-d" onclick="editLanc('saida')">+ Saída</button></div>
+  <div class="tabs">${[['todos','Todos'],['entrada','Entradas'],['saida','Saídas'],['pendente','Pendentes']].map(([k,l]) => `<button class="tab ${f===k?'on':''}" onclick="S.fFin='${k}';render()">${l}</button>`).join('')}</div>
+  ${a.length ? `<div class="list">${a.map(m => `<div class="row" onclick="${m.virtual ? `editOrc('${m.oid}')` : `editLanc('${m.tipo}','${m.id}')`}">
+    <div class="main"><div class="t">${esc(m.desc)}</div><div class="d">${fmtD(m.data) || 'sem data'} · ${esc(m.cat || '—')}</div></div>
+    <div class="val ${m.tipo === 'entrada' ? 'pos' : 'neg'}">${m.tipo === 'entrada' ? '+' : '−'} ${brl(m.valor)}<small><span class="chip ${m.pago ? 'st-pago' : 'st-pendente'}">${m.pago ? (m.tipo === 'entrada' ? 'Recebido' : 'Pago') : 'Pendente'}</span></small></div>
+    <button class="btn btn-g btn-sm" onclick="event.stopPropagation();togglePago('${m.id}')">${m.pago ? '↩' : '✔'}</button></div>`).join('')}</div>`
+    : `<div class="empty">Nenhum movimento neste mês.<br><span class="hint">Parcelas de orçamentos <b>fechados</b> aparecem aqui automaticamente.</span></div>`}`;
+}
+async function togglePago(id){
+  if (id.startsWith('v:')){
+    const [, oid, p] = id.split(':'); const o = S.orcamentos.find(x => x.id === oid);
+    if (p === 'e'){ o.entrada_paga = !o.entrada_paga; if (o.entrada_paga && !o.entrada_data) o.entrada_data = today(); } else { o.restante_pago = !o.restante_pago; if (o.restante_pago && !o.restante_data) o.restante_data = today(); }
+    await upsertLocalState('orcamentos', o);
+  } else { const l = S.lancamentos.find(x => x.id === id); l.status = l.status === 'pago' ? 'pendente' : 'pago'; await upsertLocalState('lancamentos', l); }
+  render();
+}
+function editLanc(tipo, id){
+  const l = id ? S.lancamentos.find(x => x.id === id) : {tipo, descricao:'', valor:'', data:today(), categoria:'', status:'pago', observacao:''};
+  const cats = l.tipo === 'entrada' ? CAT_ENTRADA : CAT_SAIDA;
+  openModal('m-lan', `<div class="sh-h"><h2>${id ? 'Editar' : 'Nova'} ${l.tipo === 'entrada' ? 'entrada' : 'saída'}</h2><button class="x-btn" onclick="closeModal('m-lan')">×</button></div>
+  <div class="sh-b">
+    <div class="field"><label>Descrição</label><input id="l-desc" value="${esc(l.descricao)}" placeholder="${l.tipo === 'entrada' ? 'Ex.: Venda de prateleira' : 'Ex.: Compra de MDF na loja'}"></div>
+    <div class="frow"><div class="field"><label>Valor (R$)</label><input id="l-val" type="number" step="any" inputmode="decimal" value="${l.valor}"></div>
+    <div class="field"><label>Data</label><input id="l-data" type="date" value="${l.data || ''}"></div></div>
+    <div class="frow"><div class="field"><label>Categoria</label><select id="l-cat"><option value="">—</option>${cats.map(c => `<option ${l.categoria===c?'selected':''}>${c}</option>`).join('')}</select></div>
+    <div class="field"><label>Situação</label><select id="l-st"><option value="pago" ${l.status==='pago'?'selected':''}>${l.tipo === 'entrada' ? 'Recebido' : 'Pago'}</option><option value="pendente" ${l.status==='pendente'?'selected':''}>Pendente</option></select></div></div>
+  </div>
+  <div class="sh-f">${id ? `<button class="btn btn-r btn-sm" style="margin-right:auto" onclick="delLanc('${id}')">Excluir</button>` : ''}<button class="btn btn-p" onclick="saveLanc('${l.tipo}','${id || ''}')">Salvar</button></div>`, 'sm');
+}
+async function saveLanc(tipo, id){
+  const desc = $('#l-desc').value.trim(), val = num($('#l-val').value);
+  if (!desc || !val){ toast('Informe descrição e valor.'); return; }
+  const base = id ? S.lancamentos.find(x => x.id === id) : {};
+  await upsertLocalState('lancamentos', {...base, tipo, descricao:desc, valor:val, data:$('#l-data').value || today(), categoria:$('#l-cat').value, status:$('#l-st').value});
+  closeModal('m-lan'); toast('Lançamento salvo ✔'); render();
+}
+async function delLanc(id){ if (!confirm('Excluir este lançamento?')) return; await removeState('lancamentos', id); closeModal('m-lan'); render(); }
+
+/* =====================================================================
+   AJUSTES
+   ===================================================================== */
+function vConfig(){
+  const c = S.config;
+  const f = (k, label, type = 'text', ph = '') => `<div class="field"><label>${label}</label><input id="cf-${k}" type="${type}" ${type==='number'?'step="any" inputmode="decimal"':''} value="${esc(c[k])}" placeholder="${ph}"></div>`;
+  return `<div class="top"><div><h1>Ajustes</h1><div class="sub">Dados da empresa e valores padrão dos orçamentos</div></div><button class="btn btn-p" onclick="saveConfig()">Salvar ajustes</button></div>
+  <div class="grid g2">
+    <div class="card"><h3 style="margin-bottom:12px">Empresa (aparece no PDF)</h3>
+      ${f('empresa','Nome da empresa')}${f('responsavel','Responsável (assinatura)')}${f('telefone','Telefone / WhatsApp','text','(64) 99999-9999')}${f('cidade','Cidade')}${f('pix','Chave PIX')}
+      <div class="field"><label>Logo</label><div style="background:var(--linho);border-radius:12px;padding:14px;margin-bottom:8px" id="cf-logoprev">${logoImg(true, 56)}</div>
+        <input type="file" accept="image/*" onchange="uploadLogo(this)"><div class="hint">Envie a logo (PNG/JPG). Para voltar à logo padrão MF, clique abaixo.</div>
+        <div><button class="btn btn-g btn-sm" style="margin-top:6px" onclick="S.config.logo=null;saveConfig(true)">Usar logo padrão</button></div></div>
+    </div>
+    <div class="card"><h3 style="margin-bottom:12px">Valores padrão de um novo orçamento</h3>
+      ${f('lucro_pct','Lucro sobre materiais (%)','number')}${f('valor_chapa','Valor por chapa — Júlio (R$)','number')}${f('entrada_pct','Entrada (%)','number')}${f('validade_dias','Validade da proposta (dias)','number')}
+      ${f('prazo','Prazo de entrega padrão')}${f('garantia','Garantia padrão')}
+      <div class="field"><label>Condições de pagamento padrão</label><textarea id="cf-condicoes">${esc(c.condicoes)}</textarea></div>
+    </div>
+  </div>
+  <div class="card" style="margin-top:14px"><h3 style="margin-bottom:8px">Dados da planilha antiga</h3><p class="hint" style="margin-bottom:10px">Traz para o app o histórico de orçamentos e clientes (2021–2025) e completa o catálogo de materiais. Faça isso uma única vez.</p><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn btn-g" onclick="seedCatalogo()">📦 Completar catálogo</button><button class="btn btn-p" onclick="importarHistorico()">📥 Importar histórico</button></div></div>
+  <div class="card" style="margin-top:14px"><h3 style="margin-bottom:8px">Backup</h3><p class="hint" style="margin-bottom:10px">Baixe uma cópia de todos os dados em um arquivo.</p><button class="btn btn-g" onclick="backup()">⬇ Baixar backup (JSON)</button></div>`;
+}
+async function uploadLogo(inp){
+  const f = inp.files[0]; if (!f) return;
+  if (f.size > 1.5e6){ alert('Imagem muito grande (máx. 1,5 MB).'); return; }
+  const r = new FileReader(); r.onload = async () => { S.config.logo = r.result; await saveConfig(true); }; r.readAsDataURL(f);
+}
+async function saveConfig(silent){
+  ['empresa','responsavel','telefone','cidade','pix','lucro_pct','valor_chapa','entrada_pct','validade_dias','prazo','garantia','condicoes'].forEach(k => {
+    const e = $('#cf-'+k); if (e) S.config[k] = e.type === 'number' ? num(e.value) : e.value.trim();
+  });
+  try { await DB.saveConfig(S.config); $('#side-logo').innerHTML = logoImg(false, 50); toast('Ajustes salvos ✔'); if (silent) render(); } catch(e){ alert('Erro: ' + e.message); }
+}
+function backup(){
+  const d = {exportado_em:new Date().toISOString(), clientes:S.clientes, materiais:S.materiais, orcamentos:S.orcamentos, lancamentos:S.lancamentos, config:S.config};
+  saveBlob(new Blob([JSON.stringify(d, null, 2)], {type:'application/json'}), `moveis-finos-backup-${today()}.json`);
+}
+
+document.addEventListener('click', e => { const r = $('#o-pick-res'); if (r && !e.target.closest('.pick')) r.classList.add('hide'); });
+boot();
+</script>
+</body>
+</html>
