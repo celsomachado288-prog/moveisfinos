@@ -1,0 +1,8 @@
+.assetsignore
+wrangler.jsonc
+schema.sql
+README.md
+.gitignore
+.claude
+dados-planilha.js
+node_modules
